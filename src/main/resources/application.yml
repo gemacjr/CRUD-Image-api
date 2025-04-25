@@ -1,0 +1,37 @@
+spring:
+  application:
+    name: image-crud-api
+  datasource:
+    url: jdbc:postgresql://localhost:5432/imagecrud
+    username: postgres
+    password: postgres
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
+
+server:
+  port: 8080
+  error:
+    include-message: always
+    include-binding-errors: always
+
+# JWT Configuration
+jwt:
+  secret: h38dk5lonvn38fdm29fdsgj5934hgkdflgj59fdkgnl28fdlgk41
+  expiration: 86400000  # 24 hours in milliseconds
+
+# Logging Configuration
+logging:
+  level:
+    org.springframework.security: DEBUG
+    com.example.imagecrud: DEBUG
