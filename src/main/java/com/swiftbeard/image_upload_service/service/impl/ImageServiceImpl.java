@@ -6,6 +6,7 @@ import com.swiftbeard.image_upload_service.repository.ImageRepository;
 import com.swiftbeard.image_upload_service.repository.UserRepository;
 import com.swiftbeard.image_upload_service.service.ImageService;
 import com.swiftbeard.image_upload_service.util.ImageUtils;
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -37,9 +38,8 @@ public class ImageServiceImpl implements ImageService {
 
     private final Path fileStorageLocation = Paths.get("uploads/images");
 
-    public ImageServiceImpl() {
-        this.imageRepository = null;
-        this.userRepository = null;
+    @PostConstruct
+    public void init() {
         try {
             Files.createDirectories(fileStorageLocation);
         } catch (IOException e) {
