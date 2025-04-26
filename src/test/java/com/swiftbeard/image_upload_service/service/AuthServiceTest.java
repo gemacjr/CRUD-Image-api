@@ -125,7 +125,7 @@ class AuthServiceTest {
         when(userRepository.findByUsername(anyString())).thenReturn(Optional.of(testUser));
 
         // Act
-        UserDetails userDetails = authService.userDetailsService().loadUserByUsername("testuser");
+        UserDetails userDetails = authService.loadUserByUsername("testuser");
 
         // Assert
         assertNotNull(userDetails);

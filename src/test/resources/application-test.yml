@@ -1,19 +1,22 @@
 spring:
   datasource:
-    url: jdbc:h2:mem:testdb
+    url: jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1
     username: sa
-    password: password
+    password: sa
     driver-class-name: org.h2.Driver
   jpa:
-    database-platform: org.hibernate.dialect.H2Dialect
     hibernate:
       ddl-auto: create-drop
     show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+    database-platform: org.hibernate.dialect.H2Dialect
   h2:
     console:
       enabled: true
 
 # JWT Test Configuration
 jwt:
-  secret: testingsecretkeyfortestingjwttokenvalidationtestingonly
+  secret: testsecretkeytestsecretkeytestsecretkeytestsecretkey
   expiration: 86400000  # 24 hours in milliseconds

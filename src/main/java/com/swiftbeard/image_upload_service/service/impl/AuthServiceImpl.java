@@ -8,7 +8,7 @@ import com.swiftbeard.image_upload_service.service.AuthService;
 import com.swiftbeard.image_upload_service.service.JwtService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -16,6 +16,8 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Collections;
 
 @Service
 @RequiredArgsConstructor
@@ -25,7 +27,7 @@ public class AuthServiceImpl implements AuthService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
-    private final AuthenticationManager authenticationManager;
+    private final AuthenticationProvider authenticationProvider;
 
     @Override
     @Transactional
@@ -43,7 +45,15 @@ public class AuthServiceImpl implements AuthService {
                 .build();
 
         var savedUser = userRepository.save(user);
-        var jwt = jwtService.generateToken(userDetailsService().loadUserByUsername(request.getUsername()));
+
+        // Create UserDetails after saving the user
+        var userDetails = new org.springframework.security.core.userdetails.User(
+                savedUser.getUsername(),
+                savedUser.getPassword(),
+                java.util.Collections.emptyList()
+        );
+
+        var jwt = jwtService.generateToken(userDetails);
 
         return AuthResponse.builder()
                 .token(jwt)
@@ -53,36 +63,40 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        User user = userRepository.findByUsername(username)
+            .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+        return new org.springframework.security.core.userdetails.User(
+            user.getUsername(),
+            user.getPassword(),
+            Collections.emptyList()
+        );
+    }
+
+    @Override
     public AuthResponse authenticate(AuthRequest request) {
         log.info("Authenticating user: {}", request.getUsername());
 
-        authenticationManager.authenticate(
+        authenticationProvider.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         request.getUsername(),
                         request.getPassword()
                 )
         );
 
-        var user = userRepository.findByUsername(request.getUsername())
-                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+        User user = userRepository.findByUsername(request.getUsername())
+            .orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
-        var jwt = jwtService.generateToken(userDetailsService().loadUserByUsername(request.getUsername()));
-
+        UserDetails userDetails = new org.springframework.security.core.userdetails.User(
+            user.getUsername(),
+            user.getPassword(),
+            Collections.emptyList()
+        );
+        String token = jwtService.generateToken(userDetails);
         return AuthResponse.builder()
-                .token(jwt)
-                .username(user.getUsername())
-                .userId(user.getId())
-                .build();
-    }
-
-    @Override
-    public UserDetailsService userDetailsService() {
-        return username -> userRepository.findByUsername(username)
-                .map(user -> new org.springframework.security.core.userdetails.User(
-                        user.getUsername(),
-                        user.getPassword(),
-                        java.util.Collections.emptyList()
-                ))
-                .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
+            .token(token)
+            .username(user.getUsername())
+            .userId(user.getId())
+            .build();
     }
 }

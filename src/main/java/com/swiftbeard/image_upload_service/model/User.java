@@ -34,6 +34,7 @@ public class User {
     private String email;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
     private Set<Image> images = new HashSet<>();
 
     @CreationTimestamp

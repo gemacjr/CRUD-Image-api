@@ -80,14 +80,14 @@ public class ImageController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<MessageResponse> deleteImage(
+    public ResponseEntity<Void> deleteImage(
             @PathVariable Long id,
             Authentication authentication) {
 
         Long userId = getUserIdFromAuthentication(authentication);
         imageService.deleteImage(id, userId);
 
-        return ResponseEntity.ok(new MessageResponse("Image deleted successfully", 200));
+        return ResponseEntity.noContent().build();
     }
 
     private Long getUserIdFromAuthentication(Authentication authentication) {

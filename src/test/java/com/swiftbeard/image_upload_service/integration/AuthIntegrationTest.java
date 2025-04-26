@@ -1,6 +1,7 @@
 package com.swiftbeard.image_upload_service.integration;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.swiftbeard.image_upload_service.config.TestConfig;
 import com.swiftbeard.image_upload_service.dto.AuthRequest;
 import com.swiftbeard.image_upload_service.dto.AuthResponse;
 import com.swiftbeard.image_upload_service.model.User;
@@ -11,6 +12,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
@@ -24,6 +26,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
+@Import(TestConfig.class)
 class AuthIntegrationTest {
 
     @Autowired
